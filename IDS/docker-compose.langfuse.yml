@@ -1,3 +1,4 @@
+
 ---
 services:
 
@@ -18,7 +19,7 @@ services:
     environment: &langfuse-worker-env
       DATABASE_URL: ${DATABASE_URL}
       SALT: "mysalt"
-      ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000" # generate via `openssl rand -hex 32`
+      ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
       TELEMETRY_ENABLED: ${TELEMETRY_ENABLED}
       LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: ${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES}
       CLICKHOUSE_MIGRATION_URL: ${CLICKHOUSE_MIGRATION_URL}
@@ -82,15 +83,14 @@ services:
       CLICKHOUSE_DB: default
       CLICKHOUSE_USER: ${CLICKHOUSE_USER}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
-    #uncomment below to make it persistent
-    # volumes:
-    #   - langfuse_clickhouse_data:/var/lib/clickhouse
-    #   - langfuse_clickhouse_logs:/var/log/clickhouse-server
+    volumes:
+      - langfuse_clickhouse_data:/var/lib/clickhouse
+      - langfuse_clickhouse_logs:/var/log/clickhouse-server
     ports:
       - "${CLICKHOUSE_PORT}:8123"
       - "${CLICKHOUSE_MIGRATION_PORT}:9000"
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider ${CLICKHOUSE_URL_PING} || exit 1
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider ${CLICKHOUSE_URL_PING} || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -99,7 +99,8 @@ services:
       - default
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-06-13T11-33-47Z
+    # image: quay.io/minio/minio:RELEASE.2025-06-13T11-33-47Z
+    image: ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
     restart: always
     entrypoint: sh
     command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
@@ -109,15 +110,14 @@ services:
     ports:
       - "${MINIO_EXTERNAL_PORT}:9000"
       - "9091:9001"
-    # uncomment below to make it persistent
-    # volumes:
-    #   - langfuse_minio_data:/data
+    volumes:
+      - langfuse_minio_data:/data
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
-      interval: 1s
-      timeout: 5s
-      retries: 5
-      start_period: 1s
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
     networks:
       - default
 
@@ -127,7 +127,7 @@ services:
     command: >
       --requirepass ${REDIS_AUTH}
     ports:
-      - ${REDIS_PORT}:6379
+      - "${REDIS_PORT}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
@@ -149,9 +149,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: postgres
     ports:
-      - ${POSTGRES_PORT}:5432
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - langfuse_postgres_data:/var/lib/postgresql/data
     networks:
       - default
-    #uncomment below to make it persistent
-    # volumes:
-    #   - langfuse_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  langfuse_clickhouse_data:
+  langfuse_clickhouse_logs:
+  langfuse_minio_data:
+  langfuse_postgres_data:
