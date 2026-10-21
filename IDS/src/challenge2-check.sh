@@ -11,8 +11,7 @@ BUREAU_STORE_DESCRIPTION="Credit bureau data containing customer credit accounts
 NARRATIVE_NAME="Bureau Data Narrative"
 NARRATIVE_DESCRIPTION="Narrative to get Bureau Data Info"
 EXPECTED_TABLE="Sample.BureauData"
-EXPECTED_SQL="select * from Sample.BureauData where ID = '{{ID}}'"
-
+EXPECTED_SQL="SELECT * FROM Sample.BureauData WHERE ID = '{{ID}}'"
 EXPECTED_TEMPLATE="Customer {{SK_ID_CURR}} has a credit bureau record {{ID}} for a {{CREDIT_TYPE}} account. The account is currently {{CREDIT_ACTIVE}} and is denominated in {{CREDIT_CURRENCY}}. The credit was granted {{DAYS_CREDIT}} days before the customer's application. It is currently {{CREDIT_DAY_OVERDUE}} days overdue, has been prolonged {{CNT_CREDIT_PROLONG}} times, and has a total credit amount of {{AMT_CREDIT_SUM}}. The outstanding debt is {{AMT_CREDIT_SUM_DEBT}}, the available credit limit is {{AMT_CREDIT_SUM_LIMIT}}, the current overdue balance is {{AMT_CREDIT_SUM_OVERDUE}}, and the maximum overdue amount ever recorded is {{AMT_CREDIT_MAX_OVERDUE}}. The credit is expected to end in {{DAYS_CREDIT_ENDDATE}} days, was actually closed after {{DAYS_ENDDATE_FACT}} days (if applicable), was last updated {{DAYS_CREDIT_UPDATE}} days before the application, and has an annuity payment amount of {{AMT_ANNUITY}}."
 
 SYSTEM_STORES=(
@@ -400,4 +399,8 @@ for STORE_NAME in "${PROCESSED_SYSTEM_STORES[@]}"; do
 
 done
 
+<<<<<<< HEAD
 exit 0
+=======
+exit 0
+>>>>>>> ids-release-2.14.0
